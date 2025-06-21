@@ -5,24 +5,22 @@ import { Button } from "@/components/ui/button";
 import InterviewCard from "@/components/InterviewCard";
 import { dummyInterviews } from "@/constants";
 
-// import { getCurrentUser } from "@/lib/actions/auth.action";
-// import {
-//   getInterviewsByUserId,
-//   getLatestInterviews,
-// } from "@/lib/actions/general.action";
+import { getCurrentUser } from "@/lib/actions/auth.action";
+import {
+  getInterviewsByUserId,
+  getLatestInterviews,
+} from "@/lib/actions/general.action";
 
 async function Home() {
-  // const user = await getCurrentUser();
+  const user = await getCurrentUser();
 
-  // const [userInterviews, allInterview] = await Promise.all([
-  //   getInterviewsByUserId(user?.id!),
-  //   getLatestInterviews({ userId: user?.id! }),
-  // ]);
+  const [userInterviews, allInterview] = await Promise.all([
+    getInterviewsByUserId(user?.id!),
+    getLatestInterviews({ userId: user?.id! }),
+  ]);
 
-  // const hasPastInterviews = userInterviews?.length! > 0;
-  // const hasUpcomingInterviews = allInterview?.length! > 0;
-  const hasPastInterviews = true; // Placeholder for past interviews check
-  const hasUpcomingInterviews = true; // Placeholder for upcoming interviews check
+  const hasPastInterviews = userInterviews?.length! > 0;
+  const hasUpcomingInterviews = allInterview?.length! > 0;
 
   return (
     <>
@@ -52,7 +50,7 @@ async function Home() {
 
         <div className="interviews-section">
           {hasPastInterviews ? (
-            dummyInterviews?.map((interview) => (
+            userInterviews?.map((interview) => (
               <InterviewCard
                 key={interview.id}
                 userId={interview.userId}
@@ -74,7 +72,7 @@ async function Home() {
 
         <div className="interviews-section">
           {hasUpcomingInterviews ? (
-            dummyInterviews?.map((interview) => (
+            allInterview?.map((interview) => (
               <InterviewCard
                 key={interview.id}
                 userId={interview.userId}
