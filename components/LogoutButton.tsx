@@ -1,5 +1,4 @@
 'use client'
-import { Button } from '@/components/ui/button';
 import { signOut } from '@/lib/actions/auth.action';
 import { redirect } from 'next/navigation';
 
@@ -11,7 +10,7 @@ const LogoutButton = () => {
         redirect("/sign-in");
       }
   return (
-    <Button className=" cursor-pointer" onClick={onSignOut}>Sign Out</Button>
+    <button className="cursor-pointer" onClick={onSignOut}>Sign Out</button>
   )
 }
 

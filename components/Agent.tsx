@@ -4,8 +4,10 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { vapi } from "@/lib/vapi.sdk";
-import { interviewer } from "@/constants";
-import { createFeedback } from "@/lib/actions/general.action";
+import { customer_support, interviewer } from "@/constants";
+import { createFeedback, createInterview } from "@/lib/actions/general.action";
+import { toast } from "sonner";
+import { FaUserAlt } from "react-icons/fa";
 
 enum CallStatus {
   INACTIVE = "INACTIVE",
@@ -68,10 +70,10 @@ const Agent = ({
     console.log("Generate feedback here");
 
     const { success, feedbackId: id } = await createFeedback({
-        interviewId: interviewId!,
-        userId: userId!,
-        transcript: messages
-    })
+      interviewId: interviewId!,
+      userId: userId!,
+      transcript: messages,
+    });
 
     if (success && id) {
       router.push(`/interview/${interviewId}/feedback`);
@@ -81,10 +83,28 @@ const Agent = ({
     }
   };
 
+  const handleGenerateInterview = async (messages: SavedMessages[]) => {
+    console.log("Generate interview here");
+
+    const { success } = await createInterview({
+      userId: userId!,
+      transcript: messages,
+    });
+
+    if (success) {
+      router.push("/");
+    } else {
+      console.log("error saving interview");
+      toast.error("Error saving interview. Please try again.");
+      router.push("/");
+    }
+  }
+
   useEffect(() => {
     if (callStatus === CallStatus.FINISHED) {
       if (type === "generate") {
-        router.push("/");
+        //generate interview here
+        handleGenerateInterview(messages)
       } else {
         handleGenerateFeedback(messages);
       }
@@ -95,22 +115,30 @@ const Agent = ({
     setCallStatus(CallStatus.CONNECTING);
 
     if (type === "generate") {
-      await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
+      let formattedQuestions = "";
+      if (questions) {
+        formattedQuestions = questions
+          .map((questions: string) => `- ${questions}`)
+          .join("\n");
+      }
+      await vapi.start(customer_support, {
         variableValues: {
-          userid: userId,
+          questions: formattedQuestions,
           username: userName,
         },
       });
     } else {
-        let formattedQuestions = ''
-        if (questions) {
-            formattedQuestions = questions.map((questions: string) => `- ${questions}`).join('\n');
-        }
-        await vapi.start(interviewer, {
-            variableValues: {
-                questions: formattedQuestions
-            }
-        })
+      let formattedQuestions = "";
+      if (questions) {
+        formattedQuestions = questions
+          .map((questions: string) => `- ${questions}`)
+          .join("\n");
+      }
+      await vapi.start(interviewer, {
+        variableValues: {
+          questions: formattedQuestions,
+        },
+      });
     }
   };
 
@@ -143,13 +171,8 @@ const Agent = ({
 
         <div className="card-border">
           <div className="card-content">
-            <Image
-              src="/user-avatar.png"
-              alt="user avatar"
-              width={540}
-              height={540}
-              className="rounded-full object-cover size-[120px]"
-            />
+            
+            <FaUserAlt className=" size-[120px]"/>
             <h3>{userName}</h3>
           </div>
         </div>

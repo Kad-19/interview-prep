@@ -4,7 +4,8 @@ import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 
 import { db } from "@/firebase/admin";
-import { feedbackSchema } from "@/constants";
+import { feedbackSchema, interview_schema } from "@/constants";
+import { getRandomInterviewCover } from "../utils";
 
 export async function createFeedback(params: CreateFeedbackParams) {
   const { interviewId, userId, transcript, feedbackId } = params;
@@ -83,6 +84,7 @@ export async function getFeedbackByInterviewId(
     .where("userId", "==", userId)
     .limit(1)
     .get();
+  
 
   if (querySnapshot.empty) return null;
 
@@ -122,4 +124,59 @@ export async function getInterviewsByUserId(
     id: doc.id,
     ...doc.data(),
   })) as Interview[];
+}
+
+export async function createInterview(params: CreateInterviewParams) {
+  const { transcript, userId } = params;
+
+  try {
+    const formattedTranscript = transcript
+      .map(
+        (sentence: { role: string; content: string }) =>
+          `- ${sentence.role}: ${sentence.content}\n`
+      )
+      .join("");
+    const { object } = await generateObject({
+      model: google("gemini-2.0-flash-001", {
+        structuredOutputs: false,
+      }),
+      schema: interview_schema,
+      prompt: `Prepare questions for a job interview.
+        extract the job role, type of interview (behavioral, technical, mixed), tech stack, and level of experience from the following transcript:
+        ${formattedTranscript}
+
+        Please return the details, without any additional text:
+        The questions are going to be read by a voice assistant so do not use "/" or "*" or any other special characters which might break the voice assistant.
+        Please return the details in the following format:
+        {
+          "role": "Job Role",
+          "type": "Interview Type",
+          "techstack": ["Tech Stack"],
+          "level": "Experience Level",
+          "questions": ["Question 1", "Question 2", "Question 3"]
+        }
+        
+        Thank you! <3
+    `,
+    });
+
+    const interview = {
+      role: object.role,
+      type: object.type,
+      level: object.level,
+      techstack: object.techstack,
+      questions: object.questions,
+      userId: userId,
+      finalized: true,
+      coverImage: getRandomInterviewCover(),
+      createdAt: new Date().toISOString(),
+    };
+
+    await db.collection("interviews").add(interview);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error:", error);
+    return { success: false, error: error};
+  }
 }

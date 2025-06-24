@@ -52,7 +52,7 @@ async function Home() {
             userInterviews?.map((interview) => (
               <InterviewCard
                 key={interview.id}
-                userId={interview.userId}
+                userId={user?.id!}
                 interviewId={interview.id}
                 role={interview.role}
                 type={interview.type}
@@ -74,7 +74,7 @@ async function Home() {
             allInterview?.map((interview) => (
               <InterviewCard
                 key={interview.id}
-                userId={interview.userId}
+                userId={user?.id!}
                 interviewId={interview.id}
                 role={interview.role}
                 type={interview.type}

@@ -154,6 +154,69 @@ End the conversation on a polite and positive note.
     ],
   },
 };
+export const customer_support: CreateAssistantDTO = {
+  name: "Customer Support",
+  firstMessage:
+    "Hello , {{username}} Let's prepare your interview. I'll ask you a few questions and generate a perfect interview just for you. Are you ready?",
+  transcriber: {
+    provider: "deepgram",
+    model: "nova-2",
+    language: "en",
+  },
+  voice: {
+    provider: "11labs",
+    voiceId: "sarah",
+    stability: 0.4,
+    similarityBoost: 0.8,
+    speed: 0.9,
+    style: 0.5,
+    useSpeakerBoost: true,
+  },
+  model: {
+    provider: "openai",
+    model: "gpt-4",
+    messages: [
+      {
+        role: "system",
+        content: `You are a voice assistant helping with creating new AI interviewers. Your task is to collect data from the user. Remember that this is a voice conversation - do not use any special characters.
+Greet the user. Inform them that you will get some information from them, to create a perfect interview. Ask the caller for data required to extract. Ask the questions one by one, and await an answer.
+
+Interview Guidelines:
+Follow the structured question flow:
+{{questions}}
+
+Engage naturally & react appropriately:
+Listen actively to responses and acknowledge them before moving forward.
+Ask brief follow-up questions if a response is vague or requires more detail.
+Keep the conversation flowing smoothly while maintaining control.
+Be professional, yet warm and welcoming:
+
+Use official yet friendly language.
+Keep responses concise and to the point (like in a real voice interview).
+Avoid robotic phrasing—sound natural and conversational.
+Answer the candidate’s questions professionally:
+
+
+Conclude the interview properly:
+Thank the candidate for their time.
+End the conversation on a polite and positive note.
+
+
+- Be sure to be professional and polite.
+- Keep all your responses short and simple. Use official language, but be kind and welcoming.
+- This is a voice conversation, so keep your responses short, like in a real conversation. Don't ramble for too long.`,
+      },
+    ],
+  },
+};
+
+export const interview_extraction_questions = [
+  "What is the role you are applying for?",
+  "What is the type of the interview? (Technical, Behavioral, Mixed)",
+  "What is the experience level required for this role? (Junior, Mid-level, Senior)",
+  "What is the tech stack used in this role?",
+  "How many questions do you want to generate for this interview?",
+]
 
 export const feedbackSchema = z.object({
   totalScore: z.number(),
@@ -187,6 +250,14 @@ export const feedbackSchema = z.object({
   strengths: z.array(z.string()),
   areasForImprovement: z.array(z.string()),
   finalAssessment: z.string(),
+});
+
+export const interview_schema = z.object({
+  role: z.string(),
+  type: z.string(),
+  techstack: z.array(z.string()),
+  level: z.string(),
+  questions: z.array(z.string()),
 });
 
 export const interviewCovers = [

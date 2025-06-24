@@ -8,6 +8,7 @@ import { auth } from "@/firebase/client";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 import {
   createUserWithEmailAndPassword,
@@ -19,6 +20,7 @@ import { Button } from "@/components/ui/button";
 
 import { signIn, signUp } from "@/lib/actions/auth.action";
 import FormField from "./FormField";
+import { useState } from "react";
 
 const authFormSchema = (type: FormType) => {
   return z.object({
@@ -30,6 +32,7 @@ const authFormSchema = (type: FormType) => {
 
 const AuthForm = ({ type }: { type: FormType }) => {
   const router = useRouter();
+  const [isLoading, setisLoading] = useState(false);
 
   const formSchema = authFormSchema(type);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -42,6 +45,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
   });
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    setisLoading(true);
     try {
       if (type === "sign-up") {
         const { name, email, password } = data;
@@ -92,6 +96,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
       console.log(error);
       toast.error(`There was an error: ${error}`);
     }
+    setisLoading(false);
   };
 
   const isSignIn = type === "sign-in";
@@ -137,8 +142,13 @@ const AuthForm = ({ type }: { type: FormType }) => {
               type="password"
             />
 
-            <Button className="btn" type="submit">
-              {isSignIn ? "Sign In" : "Create an Account"}
+            <Button className="btn" type="submit" disabled={isLoading}>
+              {isLoading
+                ? <AiOutlineLoading3Quarters className="animate-spin" />
+
+                : isSignIn
+                ? "Sign In"
+                : "Create an Account"}
             </Button>
           </form>
         </Form>
