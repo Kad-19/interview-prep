@@ -12,6 +12,22 @@ const monaSans = Mona_Sans({
 export const metadata: Metadata = {
   title: "PrepWise",
   description: "An AI-powered platform for preparing for mock interviews.",
+  openGraph: {
+    title: "PrepWise",
+    description: "An AI-powered platform for preparing for mock interviews.",
+    url: "https://interview-ai-prep.vercel.app",
+    siteName: "PrepWise",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "PrepWise - Mock Interview Preparation",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
