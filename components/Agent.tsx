@@ -68,6 +68,7 @@ const Agent = ({
 
   const handleGenerateFeedback = async (messages: SavedMessages[]) => {
     console.log("Generate feedback here");
+    const generating = toast.loading("Generating feedback...");
 
     const { success, feedbackId: id } = await createFeedback({
       interviewId: interviewId!,
@@ -81,10 +82,12 @@ const Agent = ({
       console.log("error saving feedback");
       router.push("/");
     }
+    toast.dismiss(generating);
   };
 
   const handleGenerateInterview = async (messages: SavedMessages[]) => {
     console.log("Generate interview here");
+    const generating = toast.loading("Generating interview...");
 
     const { success } = await createInterview({
       userId: userId!,
@@ -98,6 +101,7 @@ const Agent = ({
       toast.error("Error saving interview. Please try again.");
       router.push("/");
     }
+    toast.dismiss(generating);
   }
 
   useEffect(() => {
